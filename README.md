@@ -12,4 +12,4 @@ Add Resource to cfg file.
 
 Configure the resource to your needs inside the config file.
 
-*** Profit! ***
+***Profit!***
