@@ -6,11 +6,11 @@ Config.Resource = GetCurrentResourceName()
 Config.CheckVersion = true
 
 -- The Printer Entity
-Config.EntityName = ""
+Config.EntityName = "hei_prop_hei_cash_trolly_01"
 
 -- Gangs That Are able to print
 Config.GangNames = {
-	"test",
+	"cardealer",
 	"gangi"
 }
 
@@ -18,7 +18,7 @@ Config.GangNames = {
 Config.GangRequire = true
 
 -- Require Online Police
-Config.ActivePolice = true
+Config.ActivePolice = false
 Config.MinimumPolice = 3
 
 -- Money Type(s) and Amounts to get each time
@@ -32,11 +32,11 @@ Config.StashTimer = 5
 
 -- Printer Coords
 Config.Printer = {
-	{-2070.0031738281,-1019.9599804688,5.8841547966003, 1.00}
+	{745.15,-926.02,25.02, 185.5}
 }
 -- Money Spawn Coords
 Config.MoneySpawnZone = {
-	{-2070.0031738281,-1019.9599804688,5.8841547966003, 1.00}
+	{745.15,-926.02,25.02, 185.5}
 }
 
 --[[ usage
