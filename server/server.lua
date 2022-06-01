@@ -1,6 +1,7 @@
 local ESX 				= nil
 local EnougthCops = false
-local sTimer = Config.StashTimer * 60
+--local sTimer = Config.StashTimer * 60
+local sTimer = 25
 local fStart = false
 local StopBool = false
 local StashSpawned = false
@@ -34,28 +35,11 @@ end
 
 function StartStashing()
     Citizen.CreateThread(function()
-        while StopBool == false do
+            TriggerClientEvent("esx_moneyprinter:setzone", -1)
             Citizen.Wait(Config.StashTimer * 1000)
             if StopBool == false then
-                waitingStash()
+            TriggerClientEvent("esx_moneyprinter:stash", -1)
             end
-        end
-    end)
-end
-
-function waitingStash()
-    Citizen.CreateThread(function()
-        if StashSpawned == true then
-              Citizen.Wait(2500)
-              print("there is a stash spawned")
-                waitingStash()
-        end
-        if StashSpawned == false then
-            print("spawning money")
-            local player = ESX.GetPlayerFromId(starterID)
-            TriggerClientEvent("esx_moneyprinter:stash", player)
-            StashSpawned = true
-        end
     end)
 end
 
@@ -70,13 +54,15 @@ AddEventHandler('esx_moneyprinter:start', function(ZoneOccupied, StashSpawnTimer
     GetCops()
     if ZoneOccupied == false and StashSpawnTimer == sTimer and EnougthCops then
         starterID = sid
+        print("starting")
+        StopBool = false
         StartStashing()
     else
         print("cant/cops")
     end
 end)
 
-
+-- make another stash spawnable
 RegisterServerEvent('esx_moneyprinter:resetstash')
 AddEventHandler('esx_moneyprinter:resetstash', function()
     StashSpawned = false
@@ -84,5 +70,11 @@ end)
 
 RegisterServerEvent('esx_moneyprinter:stop')
 AddEventHandler('esx_moneyprinter:stop', function()
-        StopBool = true
+    print("stopping")
+     sTimer = 25
+     fStart = false
+     StopBool = true
+     StashSpawned = false
+     starterID = 0
+     TriggerClientEvent("esx_moneyprinter:reset", -1)
 end)
