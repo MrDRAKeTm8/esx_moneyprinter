@@ -20,9 +20,17 @@ local ZoneOccupied = false
 local StashSpawnTimer = 25
 local StashAvailable = false
 local ObjectG = nil
+--local ObjectInk = nil
 local Blip = nil
 -- exec bools
 local exec = false
+
+-- wait until service
+local WaitToService = 12500
+
+-- progress bools
+local ServiceInkBool = false
+local ServiceDone = false
 
 
 local screenPosX = 0.165                    -- X coordinate (top left corner of HUD)
@@ -58,8 +66,10 @@ AddEventHandler('esx_moneyprinter:reset', function()
      ZoneOccupied = false
    --  StashSpawnTimer = Config.StashTimer * 60
      StashSpawnTimer = 25
-   
+     WaitToService = 12500  
      StashAvailable = false
+     ServiceInkBool = false
+     ServiceDone = false
      ObjectG = nil
      RemoveBlip(Blip)
      Blip = nil
@@ -279,14 +289,19 @@ function Timer()
             local coords = GetEntityCoords(ped,true)
             local dist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true)
             if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true) < 160.5 and StashSpawnTimer ~= 0 then
+                if ServiceInkBool == false then
                 StashSpawnTimer = StashSpawnTimer - 1
+                else
+                    print(ServiceInkBool)
+                    print("not false")
+                end
                -- print("timer" ..StashSpawnTimer) 
                -- drawTxthud(dist, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.075)
             end
             
             if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true) > 160.5 and StashSpawnTimer > 0 then
                 TriggerServerEvent('esx_moneyprinter:stop')
-                exports['mythic_notify']:DoHudText('inform', 'You have exited the proccess, reseting!', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
+                exports['mythic_notify']:DoHudText('inform', 'You have exited the proccess, reseting!', 5000, { ['background-color'] = '#ffffff', ['color'] = '#b5091a' })
                 print("exited")
             end
 
@@ -296,13 +311,58 @@ function Timer()
     end)
 
     Citizen.CreateThread(function()
-            Citizen.Wait(StashSpawnTimer * 1000)
-            if ZoneOccupied then
-                exports['mythic_notify']:DoHudText('inform', 'Stash Is Ready', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
+        while true do
+            Citizen.Wait(12000)
+            if ZoneOccupied and ServiceDone == false then
+                print("exec ink")
+                ServiceInkBool = true
+                ServiceInk()
+                exports['mythic_notify']:DoHudText('inform', 'Service Of Ink Is Needed', 5000, { ['background-color'] = '#ffffff', ['color'] = '#b5091a' })
+            end
+            if ServiceDone then
+                break;
+            end
+        end
+    end)
+
+    
+
+    Citizen.CreateThread(function()
+            Citizen.Wait(5000)
+            if ZoneOccupied and StashSpawnTimer == 0 then
+                exports['mythic_notify']:DoHudText('inform', 'Stash Is Ready', 5000, { ['background-color'] = '#ffffff', ['color'] = '#09b52e' })
             end
     end)
 
 end
+
+-- Service the ink after x/2 time
+function ServiceInk()
+    Citizen.CreateThread(function()
+        while true do
+            Citizen.Wait(1)
+            local ped = GetPlayerPed(-1)
+            local coords = GetEntityCoords(ped,true)
+            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 756.56, -3193.73, 6.07, true) <= 5.5 and ServiceInkBool then
+                DrawText3Ds(756.56, -3193.73, 6.07, "Press ~g~[E]~s~ to ~y~Service~s~")
+            end
+                if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 756.56, -3193.73, 6.07, true) <= 1.5 and ServiceInkBool then
+                    if IsControlJustPressed(0,38) then
+                        exports['progressBars']:startUI(10000, "Fixing up")
+                   
+                        AnimateInk()
+                        ServiceInkBool = false
+                        ServiceDone = true
+                        break;
+                    end
+                end
+
+        end
+    end)
+
+end
+
+
 
 -- hud
 function jjhud()
@@ -321,7 +381,7 @@ function jjhud()
 end
 
 
--- Start Animation
+-- Start Animation for stash
 function AnimatePickupStash()
     --print("animating")
     local plySkin
@@ -346,6 +406,25 @@ function AnimatePickupStash()
     Citizen.Wait(10000)
     ClearPedTasksImmediately(plyPed)
 end
+
+-- Start Animation for ink
+function AnimateInk()
+    --print("animating")
+    local plyPed = GetPlayerPed(-1)
+
+    --SetEntityHeading(plyPed, ObjectG)
+
+    ESX.Streaming.RequestAnimDict('mini@repair', function(...)
+
+        TaskPlayAnim( plyPed, "mini@repair", "fixing_a_player", 8.0, 1.0, -1, 1, 0, 0, 0, 0 )     
+
+    end)
+    Citizen.Wait(10000)
+    ClearPedTasksImmediately(plyPed)
+end
+
+
+
 
 
 -- Spawn Function for stash

@@ -73,7 +73,16 @@ AddEventHandler('esx_moneyprinter:start', function(ZoneOccupied, StashSpawnTimer
     local xPlayer = ESX.GetPlayerFromId(source)
     local _source = source
     local coords = cords
+    local HaveItem = true
     GetCops()
+
+    local item = xPlayer.getInventoryItem('ink')
+
+    if not item or not item.count then 
+        TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'No Ink, Go get some.', style = { ['background-color'] = '#ffffff', ['color'] = '#000000' } })
+        HaveItem = false;
+     end
+                                            -- and HaveItem
     if ZoneOccupied == false and EnougthCops then
         starterID = sid
         print("starting")
@@ -82,6 +91,7 @@ AddEventHandler('esx_moneyprinter:start', function(ZoneOccupied, StashSpawnTimer
         TriggerClientEvent("esx_moneyprinter:playerhud", _source)
     else
         print("cant/cops")
+        TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'Cant Start or Not Enougth Cops.', style = { ['background-color'] = '#ffffff', ['color'] = '#000000' } })
     end
 end)
 
