@@ -57,7 +57,7 @@ AddEventHandler('esx_moneyprinter:reset', function()
      AbleToStartCops = false
      ZoneOccupied = false
    --  StashSpawnTimer = Config.StashTimer * 60
-   StashSpawnTimer = 25
+     StashSpawnTimer = 25
    
      StashAvailable = false
      ObjectG = nil
@@ -70,24 +70,27 @@ end)
 RegisterNetEvent('esx_moneyprinter:setzone')
 AddEventHandler('esx_moneyprinter:setzone', function()
     print("setting zone")
-
-    if exec == false then
         ZoneOccupied = true   
-        Timer()
-        HUD()
         pickkk()
-        exec = true
-    end
-
+        CopsNotify()
 end)
 
-
+RegisterNetEvent('esx_moneyprinter:playerhud')
+AddEventHandler('esx_moneyprinter:playerhud', function()
+    Timer()
+    jjhud()
+end)
 
 --ServerEvent('esx_moneyprinter:resetstash')
 RegisterNetEvent('esx_moneyprinter:stash')
 AddEventHandler('esx_moneyprinter:stash', function()
-    print("test")
-    SpawnMoneyStash()
+    Citizen.CreateThread(function()
+        Citizen.Wait(StashSpawnTimer * 1000)
+        if ZoneOccupied then
+            SpawnMoneyStash()
+        end
+    end)
+
 end)
 
 
@@ -126,15 +129,16 @@ Citizen.CreateThread(function()
         local ped = GetPlayerPed(-1)
        local coords = GetEntityCoords(ped,true)
 			if ZoneOccupied == false then
-				if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 745.15, -926.02, 25.02, true) <= 5.5 then
+				if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true) <= 5.5 then
 					if AbleToStart then
-						DrawText3Ds(745.15, -926.02, 25.02, "Press ~g~[E]~s~ to ~y~Hack~s~")
+						DrawText3Ds(761.13, -3193.19, 6.03, "Press ~g~[E]~s~ to ~y~Start~s~")
 					end
 				end
-				if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 745.15, -926.02, 25.02, true) <= 5.5 then
+				if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.13, -3193.19, 6.83, true) <= 2.5 then
 					if IsControlJustPressed(0,38) and AbleToStart then
-                      --  exports['mythic_notify']:SendAlert('inform', 'Dont Exit The Red Circle Zone', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
-						print("dont exit")
+                        StashSpawnTimer = 25 -- temp fix i guess for 24 reduce problem
+                       exports['mythic_notify']:DoHudText('inform', 'Dont Exit The Red Circle Zone', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
+						--print("dont exit")
                         TriggerServerEvent("esx_moneyprinter:start", ZoneOccupied, StashSpawnTimer, coords, GetPlayerServerId(PlayerId()))
                         ZoneOccupied = true
 					end
@@ -150,15 +154,17 @@ function pickkk()
             Citizen.Wait(1)
             local ped = GetPlayerPed(-1)
             local coords = GetEntityCoords(ped,true)
-            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 745.15, -926.02, 25.02, true) <= 5.5 and StashSpawnTimer == 0 then
-                DrawText3Ds(745.15, -926.02, 25.02, "Press ~g~[E]~s~ to ~y~Pickup~s~")
+            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 762.48, -3193.54, 6.07, true) <= 5.5 and StashSpawnTimer == 0 then
+                DrawText3Ds(762.48, -3193.54, 6.07, "Press ~g~[E]~s~ to ~y~Pickup~s~")
             end
-                if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 745.15, -926.02, 25.02, true) <= 2.5 and StashSpawnTimer == 0 then
+                if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 762.48, -3193.54, 6.07, true) <= 1.5 and StashSpawnTimer == 0 then
                     if IsControlJustPressed(0,38) then
-                    -- exports['mythic_notify']:SendAlert('inform', 'Picking up', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
-                        print("picking up")
+                   exports['progressBars']:startUI(10000, "Picking up")
+                   -- print("picking up")
+                   
                          AnimatePickupStash()
-                        TriggerServerEvent('esx_moneyprinter:resetstash')
+                        TriggerServerEvent('esx_moneyprinter:done', ZoneOccupied, StashSpawnTimer, GetPlayerServerId(PlayerId()))
+                        TriggerServerEvent('esx_moneyprinter:stop')
                         break;
                     end
                 end
@@ -172,7 +178,7 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(5000)
         if ZoneOccupied and Blip==nil then
-             Blip = AddBlipForRadius(745.15, -926.02, 25.02, 100.0)
+             Blip = AddBlipForRadius(761.12, -3193.95, 6.07, 100.0)
 
             SetBlipRoute(Blip, true)
 
@@ -202,6 +208,67 @@ Citizen.CreateThread(function()
     end
 end)
 
+-- Notify Cops
+function CopsNotify()
+    if ESX.GetPlayerData().job == "police" then
+
+        ESX.ShowNotification("Somebody started fake money printing operation")  
+    
+        Citizen.CreateThread(function(...)
+    
+          local blipA = AddBlipForRadius(246.78, 218.70, 106.30, 100.0)
+    
+          SetBlipHighDetail(blipA, true)
+    
+          SetBlipColour(blipA, 1)
+    
+          SetBlipAlpha (blipA, 128)
+    
+    
+    
+          local blipB = AddBlipForCoord(246.78, 218.70, 106.30)
+    
+          SetBlipSprite               (blipB, 458)
+    
+          SetBlipDisplay              (blipB, 4)
+    
+          SetBlipScale                (blipB, 1.0)
+    
+          SetBlipColour               (blipB, 1)
+    
+          SetBlipAsShortRange         (blipB, true)
+    
+          SetBlipHighDetail           (blipB, true)
+    
+          BeginTextCommandSetBlipName ("STRING")
+    
+          AddTextComponentString      ("Printing In Progress")
+    
+          EndTextCommandSetBlipName   (blipB)
+    
+    
+    
+          local timer = GetGameTimer()
+    
+          while GetGameTimer() - timer < 30000 do
+    
+            Citizen.Wait(0)
+    
+          end
+    
+    
+    
+          RemoveBlip(blipA)
+    
+          RemoveBlip(blipB)
+    
+        end)
+    
+      end
+
+end
+
+
 
 -- Start the timer reduce (progress bar)
 function Timer()
@@ -210,21 +277,16 @@ function Timer()
             Citizen.Wait(1000)
             local ped = GetPlayerPed(-1)
             local coords = GetEntityCoords(ped,true)
-            local dist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 745.15, -926.02, 25.02, true)
-            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 745.15, -926.02, 25.02, true) < 160.5 and StashSpawnTimer ~= 0 then
-                --[[StashSpawnTimer = StashSpawnTimer - 1
-                SendNUIMessage({
-                    update = true,
-                    time = StashSpawnTimer
-                })]]
+            local dist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true)
+            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true) < 160.5 and StashSpawnTimer ~= 0 then
                 StashSpawnTimer = StashSpawnTimer - 1
-                print("timer" ..StashSpawnTimer) --- stopped here work from here
-                drawTxthud(dist, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.075)
+               -- print("timer" ..StashSpawnTimer) 
+               -- drawTxthud(dist, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.075)
             end
             
-            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 745.15, -926.02, 25.02, true) > 160.5 and StashSpawnTimer > 0 then
+            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true) > 160.5 and StashSpawnTimer > 0 then
                 TriggerServerEvent('esx_moneyprinter:stop')
-               -- exports['mythic_notify']:SendAlert('inform', 'You have exited the proccess, reseting!', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
+                exports['mythic_notify']:DoHudText('inform', 'You have exited the proccess, reseting!', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
                 print("exited")
             end
 
@@ -232,18 +294,28 @@ function Timer()
 
         end
     end)
+
+    Citizen.CreateThread(function()
+            Citizen.Wait(StashSpawnTimer * 1000)
+            if ZoneOccupied then
+                exports['mythic_notify']:DoHudText('inform', 'Stash Is Ready', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
+            end
+    end)
+
 end
 
 -- hud
-function HUD()
+function jjhud()
+    print("jjhud exec")
     Citizen.CreateThread(function()
         while ZoneOccupied do
             Citizen.Wait(0)
             local ped = GetPlayerPed(-1)
             local coords = GetEntityCoords(ped,true)
-            local dist = Math.ceil(GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 745.15, -926.02, 25.02, true))
-            
-            drawTxthud(dist, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.075)
+            local dist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true)
+            local distcel = math.ceil(dist)
+            drawTxthud("Distance: " ..distcel, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.075)
+            drawTxthud("Time Left: " ..StashSpawnTimer, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.055)
         end
     end)
 end
@@ -251,30 +323,30 @@ end
 
 -- Start Animation
 function AnimatePickupStash()
-    local ped = GetPlayerPed(-1)
-    TaskStartScenarioInPlace(ped, "MP_SNOWBALL", 0, true)
-    Citizen.Wait(1500)
-    TaskStartScenarioInPlace(ped, "MP_SNOWBALL", 0, true)
-    Citizen.Wait(1500)
-    TaskStartScenarioInPlace(ped, "MP_SNOWBALL", 0, true)
-    ClearPedTasksImmediately(ped)
+    --print("animating")
+    local plySkin
+    TriggerEvent('skinchanger:getSkin', function(skin) plySkin = skin; end)
+    local plyPed = GetPlayerPed(-1)
+
+    SetEntityHeading(plyPed, ObjectG)
+    if (plySkin["bags_1"] == 0 or plySkin["bags_2"] == 0) then
+       -- TriggerEvent('skinchanger:loadClothes', skin, Config.Uniforms[job].male)
+       TriggerEvent('skinchanger:getSkin', function(skin)
+        TriggerEvent('skinchanger:loadClothes', skin, {
+            bags_1      = 44
+        })
+	    end)
+    end
+
+    ESX.Streaming.RequestAnimDict('mp_take_money_mg', function(...)
+
+        TaskPlayAnim( plyPed, "mp_take_money_mg", "stand_cash_in_bag_loop", 8.0, 1.0, -1, 1, 0, 0, 0, 0 )     
+
+    end)
+    Citizen.Wait(10000)
+    ClearPedTasksImmediately(plyPed)
 end
 
-
--- Spawn Function for printer
-function SpawnPrinter()
-	local printer = GetHashKey(Config.EntityName)
-	RequestModel(printer)
-	while not HasModelLoaded(printer) do
-		Citizen.Wait(100)
-	end
-	local printerObject = CreateObject(printer, 745.15, -926.02, 25.02, true)
-	SetEntityRotation(printerObject, 0.0, 0.0,  Config.Printer[4]+180.0)
-	PlaceObjectOnGroundProperly(printerObject)
-	SetEntityAsMissionEntity(printerObject, true, true)
-	printerNetObj = ObjToNet(printerObject)
-	SetModelAsNoLongerNeeded(printer)
-end
 
 -- Spawn Function for stash
 function SpawnMoneyStash()
@@ -283,9 +355,10 @@ function SpawnMoneyStash()
 	while not HasModelLoaded(moneystash) do
 		Citizen.Wait(100)
 	end
-	local printerObject = CreateObject(moneystash, 745.15, -926.02, 24.02, true)
+	local printerObject = CreateObject(moneystash, 762.48, -3193.54, 6.07, true)
     ObjectG = printerObject
-	SetEntityRotation(printerObject, 0.0, 0.0,  Config.MoneySpawnZone[4]+180.0)
+	--SetEntityRotation(printerObject, 0.0, 0.0,  Config.MoneySpawnZone[4]+180.0)
+    SetEntityRotation(printerObject, 0.0, 0.0, 180.0)
 	PlaceObjectOnGroundProperly(printerObject)
 	SetEntityAsMissionEntity(printerObject, true, true)
 	printerNetObj = ObjToNet(printerObject)

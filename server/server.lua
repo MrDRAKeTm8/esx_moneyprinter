@@ -33,6 +33,8 @@ function GetCops()
 end
 
 
+
+
 function StartStashing()
     Citizen.CreateThread(function()
             TriggerClientEvent("esx_moneyprinter:setzone", -1)
@@ -43,20 +45,41 @@ function StartStashing()
     end)
 end
 
+function RewardBcash(xplayerr)
+    if Config.BlackMoney then
+    xplayerr.addAccountMoney('black_money', Config.BlackMoneyAmount)
+    end
+    if Config.WhiteMoney then
+        xplayerr.addAccountMoney('money', Config.WhiteMoneyAmount)
+    end
+end
 
 
+RegisterServerEvent('esx_moneyprinter:done')
+AddEventHandler('esx_moneyprinter:done', function(ZoneOccupied, StashSpawnTimer, sid)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    --local coords = cords
+    GetCops()
+    if ZoneOccupied == true and StashSpawnTimer == 0 and sid==starterID then
+        RewardBcash(xPlayer)
+    else
+        print("cant")
+    end
+end)
 
 
 RegisterServerEvent('esx_moneyprinter:start')
 AddEventHandler('esx_moneyprinter:start', function(ZoneOccupied, StashSpawnTimer, cords, sid)
     local xPlayer = ESX.GetPlayerFromId(source)
+    local _source = source
     local coords = cords
     GetCops()
-    if ZoneOccupied == false and StashSpawnTimer == sTimer and EnougthCops then
+    if ZoneOccupied == false and EnougthCops then
         starterID = sid
         print("starting")
         StopBool = false
-        StartStashing()
+        StartStashing(starterID)
+        TriggerClientEvent("esx_moneyprinter:playerhud", _source)
     else
         print("cant/cops")
     end
