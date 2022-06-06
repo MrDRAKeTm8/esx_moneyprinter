@@ -113,7 +113,6 @@ if Config.GangRequire then
 
     Citizen.CreateThread(function()
         while true do
-            Citizen.Wait(10000)
             jobname = ESX.PlayerData.job.name
             if ESX.PlayerData.job then
                 
@@ -125,7 +124,9 @@ if Config.GangRequire then
 
 
             end
+            Citizen.Wait(30000)
         end
+
     end)
 
 end
@@ -140,11 +141,11 @@ end
 -- Zone and Marker Create
 
 Citizen.CreateThread(function()
-    while true do
+    while ZoneOccupied == false do
         Citizen.Wait(1)
         local ped = GetPlayerPed(-1)
        local coords = GetEntityCoords(ped,true)
-			if ZoneOccupied == false then
+		--	if ZoneOccupied == false then
 				if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true) <= 5.5 then
 					if AbleToStart then
 						DrawText3Ds(761.13, -3193.19, 6.03, "Press ~g~[E]~s~ to ~y~Start~s~")
@@ -159,7 +160,7 @@ Citizen.CreateThread(function()
                      --   ZoneOccupied = true
 					end
 				end
-			end
+			--end
     end
 end)
 
