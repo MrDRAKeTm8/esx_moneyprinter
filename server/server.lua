@@ -28,7 +28,7 @@ function GetCops()
             end
         else
             EnougthCops = true
-            print("no need police")
+            --print("no need police")
     end
 end
 
@@ -63,7 +63,7 @@ AddEventHandler('esx_moneyprinter:done', function(ZoneOccupied, StashSpawnTimer,
     if ZoneOccupied == true and StashSpawnTimer == 0 and sid==starterID then
         RewardBcash(xPlayer)
     else
-        print("cant")
+        --print("cant")
     end
 end)
 
@@ -87,16 +87,16 @@ AddEventHandler('esx_moneyprinter:start', function(ZoneOccupied, StashSpawnTimer
     end
 
     if ZoneOccupied == false and EnougthCops and HaveItem then
-        print("test344")
+        --print("test344")
         starterID = sid
-        print("starting")
+        --print("starting")
         StopBool = false
         StartStashing(starterID)
         TriggerClientEvent("esx_moneyprinter:playerhud", _source)
         --TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'Dont Exit The Red Circle Zone.', style = { ['background-color'] = '#ffffff', ['color'] = '#000000' } })
         TriggerClientEvent('esx:showNotification', _source, 'Dont Exit The Red Circle Zone.')
     else
-        print("cant/cops")
+        --print("cant/cops")
         --TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'Cant Start or Not Enougth Cops.', style = { ['background-color'] = '#ffffff', ['color'] = '#000000' } })
         TriggerClientEvent('esx:showNotification', _source, 'Cant Start or Not Enougth Cops.')
     end
@@ -110,7 +110,7 @@ end)
 
 RegisterServerEvent('esx_moneyprinter:stop')
 AddEventHandler('esx_moneyprinter:stop', function()
-    print("stopping")
+    --print("stopping")
      sTimer = Config.StashTimer
      fStart = false
      StopBool = true

@@ -79,7 +79,7 @@ end)
 
 RegisterNetEvent('esx_moneyprinter:setzone')
 AddEventHandler('esx_moneyprinter:setzone', function()
-    print("setting zone")
+    --print("setting zone")
         ZoneOccupied = true   
         pickkk()
         CopsNotify()
@@ -154,7 +154,7 @@ Citizen.CreateThread(function()
 					if IsControlJustPressed(0,38) and AbleToStart then
                         StashSpawnTimer = Config.StashTimer -- temp fix i guess for time reduce problem
                       -- exports['mythic_notify']:DoHudText('inform', 'Dont Exit The Red Circle Zone', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
-						--print("dont exit")
+						----print("dont exit")
                         TriggerServerEvent("esx_moneyprinter:start", ZoneOccupied, StashSpawnTimer, coords, GetPlayerServerId(PlayerId()))
                      --   ZoneOccupied = true
 					end
@@ -176,7 +176,7 @@ function pickkk()
                 if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 762.48, -3193.54, 6.07, true) <= 1.5 and StashSpawnTimer == 0 then
                     if IsControlJustPressed(0,38) then
                    exports['progressBars']:startUI(10000, "Picking up")
-                   -- print("picking up")
+                   -- --print("picking up")
                    
                          AnimatePickupStash()
                         TriggerServerEvent('esx_moneyprinter:done', ZoneOccupied, StashSpawnTimer, GetPlayerServerId(PlayerId()))
@@ -297,10 +297,10 @@ function Timer()
                 if ServiceInkBool == false then
                 StashSpawnTimer = StashSpawnTimer - 1
                 else
-                    print(ServiceInkBool)
-                    print("not false")
+                    --print(ServiceInkBool)
+                    --print("not false")
                 end
-               -- print("timer" ..StashSpawnTimer) 
+               -- --print("timer" ..StashSpawnTimer) 
                -- drawTxthud(dist, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.075)
             end
             
@@ -308,7 +308,7 @@ function Timer()
                 TriggerServerEvent('esx_moneyprinter:stop')
                -- exports['mythic_notify']:DoHudText('inform', 'You have exited the proccess, reseting!', 5000, { ['background-color'] = '#ffffff', ['color'] = '#b5091a' })
                 ESX.ShowNotification("You have exited the proccess, reseting!")
-                print("exited")
+                --print("exited")
             end
 
 
@@ -319,14 +319,14 @@ function Timer()
     Citizen.CreateThread(function()
         TimeMaxSv = math.ceil(StashSpawnTimer * 0.9) -- 10% off
         TimeMinSv = math.ceil(StashSpawnTimer * 0.01)
-        print("max"..TimeMaxSv)
-        print("min"..TimeMinSv)
+        --print("max"..TimeMaxSv)
+        --print("min"..TimeMinSv)
         ServiceInTime = math.random(TimeMinSv,TimeMaxSv)
-        print("service time: "..ServiceInTime)
+        --print("service time: "..ServiceInTime)
         while true do
             Citizen.Wait(ServiceInTime * 1000)
             if ZoneOccupied and ServiceDone == false then
-                print("exec ink")
+                --print("exec ink")
                 ServiceInkBool = true
                 ServiceInk()
                 --exports['mythic_notify']:DoHudText('inform', 'Service Of Ink Is Needed', 5000, { ['background-color'] = '#ffffff', ['color'] = '#b5091a' })
@@ -390,7 +390,7 @@ end
 
 -- hud
 function jjhud()
-    print("jjhud exec")
+    --print("jjhud exec")
     Citizen.CreateThread(function()
         while ZoneOccupied do
             Citizen.Wait(0)
@@ -418,7 +418,7 @@ end
 
 -- Start Animation for stash
 function AnimatePickupStash()
-    --print("animating")
+    ----print("animating")
     local plySkin
     TriggerEvent('skinchanger:getSkin', function(skin) plySkin = skin; end)
     local plyPed = GetPlayerPed(-1)
@@ -444,7 +444,7 @@ end
 
 -- Start Animation for ink
 function AnimateInk()
-    --print("animating")
+    ----print("animating")
     local plyPed = GetPlayerPed(-1)
 
     --SetEntityHeading(plyPed, ObjectG)
