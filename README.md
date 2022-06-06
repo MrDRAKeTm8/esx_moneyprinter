@@ -25,3 +25,6 @@ Configure the resource to your needs inside the config file.
 
 ## Dependencies:
 [Progress Bars](https://github.com/EthanPeacock/progressBars/releases/tag/1.0)
+
+[Money Printer YMAP](https://www.gta5-mods.com/maps/small-counterfeit-cash-operation)
+Included in the repo
