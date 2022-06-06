@@ -17,7 +17,7 @@ local AbleToStart = false
 local AbleToStartCops = false
 local ZoneOccupied = false
 --local StashSpawnTimer = Config.StashTimer * 60
-local StashSpawnTimer = 25
+local StashSpawnTimer = Config.StashTimer
 local StashAvailable = false
 local ObjectG = nil
 --local ObjectInk = nil
@@ -65,7 +65,7 @@ AddEventHandler('esx_moneyprinter:reset', function()
      AbleToStartCops = false
      ZoneOccupied = false
    --  StashSpawnTimer = Config.StashTimer * 60
-     StashSpawnTimer = 25
+     StashSpawnTimer = Config.StashTimer
      WaitToService = 12500  
      StashAvailable = false
      ServiceInkBool = false
@@ -109,7 +109,7 @@ if Config.GangRequire == false then
 end
 
 -- job check
-if Config.GangRequire == true then
+if Config.GangRequire then
 
     Citizen.CreateThread(function()
         while true do
@@ -130,6 +130,12 @@ if Config.GangRequire == true then
 
 end
 
+-- job check if false
+if Config.GangRequire == false then
+     AbleToStart = true
+end
+
+
 
 -- Zone and Marker Create
 
@@ -146,11 +152,11 @@ Citizen.CreateThread(function()
 				end
 				if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.13, -3193.19, 6.83, true) <= 2.5 then
 					if IsControlJustPressed(0,38) and AbleToStart then
-                        StashSpawnTimer = 25 -- temp fix i guess for 24 reduce problem
-                       exports['mythic_notify']:DoHudText('inform', 'Dont Exit The Red Circle Zone', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
+                        StashSpawnTimer = Config.StashTimer -- temp fix i guess for time reduce problem
+                      -- exports['mythic_notify']:DoHudText('inform', 'Dont Exit The Red Circle Zone', 5000, { ['background-color'] = '#ffffff', ['color'] = '#000000' })
 						--print("dont exit")
                         TriggerServerEvent("esx_moneyprinter:start", ZoneOccupied, StashSpawnTimer, coords, GetPlayerServerId(PlayerId()))
-                        ZoneOccupied = true
+                     --   ZoneOccupied = true
 					end
 				end
 			end
@@ -221,12 +227,11 @@ end)
 -- Notify Cops
 function CopsNotify()
     if ESX.GetPlayerData().job == "police" then
-
         ESX.ShowNotification("Somebody started fake money printing operation")  
     
         Citizen.CreateThread(function(...)
     
-          local blipA = AddBlipForRadius(246.78, 218.70, 106.30, 100.0)
+          local blipA = AddBlipForRadius(768.05, -3185.19, 5.9, 100.0)
     
           SetBlipHighDetail(blipA, true)
     
@@ -236,7 +241,7 @@ function CopsNotify()
     
     
     
-          local blipB = AddBlipForCoord(246.78, 218.70, 106.30)
+          local blipB = AddBlipForCoord(768.05, -3185.19, 5.9)
     
           SetBlipSprite               (blipB, 458)
     
@@ -288,7 +293,7 @@ function Timer()
             local ped = GetPlayerPed(-1)
             local coords = GetEntityCoords(ped,true)
             local dist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true)
-            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true) < 160.5 and StashSpawnTimer ~= 0 then
+            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true) < 120.5 and StashSpawnTimer ~= 0 then
                 if ServiceInkBool == false then
                 StashSpawnTimer = StashSpawnTimer - 1
                 else
@@ -299,9 +304,10 @@ function Timer()
                -- drawTxthud(dist, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.075)
             end
             
-            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true) > 160.5 and StashSpawnTimer > 0 then
+            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true) > 120.5 and StashSpawnTimer > 0 then
                 TriggerServerEvent('esx_moneyprinter:stop')
-                exports['mythic_notify']:DoHudText('inform', 'You have exited the proccess, reseting!', 5000, { ['background-color'] = '#ffffff', ['color'] = '#b5091a' })
+               -- exports['mythic_notify']:DoHudText('inform', 'You have exited the proccess, reseting!', 5000, { ['background-color'] = '#ffffff', ['color'] = '#b5091a' })
+                ESX.ShowNotification("You have exited the proccess, reseting!")
                 print("exited")
             end
 
@@ -311,13 +317,21 @@ function Timer()
     end)
 
     Citizen.CreateThread(function()
+        TimeMaxSv = math.ceil(StashSpawnTimer * 0.9) -- 10% off
+        TimeMinSv = math.ceil(StashSpawnTimer * 0.01)
+        print("max"..TimeMaxSv)
+        print("min"..TimeMinSv)
+        ServiceInTime = math.random(TimeMinSv,TimeMaxSv)
+        print("service time: "..ServiceInTime)
         while true do
-            Citizen.Wait(12000)
+            Citizen.Wait(ServiceInTime * 1000)
             if ZoneOccupied and ServiceDone == false then
                 print("exec ink")
                 ServiceInkBool = true
                 ServiceInk()
-                exports['mythic_notify']:DoHudText('inform', 'Service Of Ink Is Needed', 5000, { ['background-color'] = '#ffffff', ['color'] = '#b5091a' })
+                --exports['mythic_notify']:DoHudText('inform', 'Service Of Ink Is Needed', 5000, { ['background-color'] = '#ffffff', ['color'] = '#b5091a' })
+                ESX.ShowNotification("Service Of Ink Is Needed!")
+
             end
             if ServiceDone then
                 break;
@@ -330,11 +344,21 @@ function Timer()
     Citizen.CreateThread(function()
             Citizen.Wait(5000)
             if ZoneOccupied and StashSpawnTimer == 0 then
-                exports['mythic_notify']:DoHudText('inform', 'Stash Is Ready', 5000, { ['background-color'] = '#ffffff', ['color'] = '#09b52e' })
+                --exports['mythic_notify']:DoHudText('inform', 'Stash Is Ready', 5000, { ['background-color'] = '#ffffff', ['color'] = '#09b52e' })
+                ESX.ShowNotification("Stash Is Ready")
             end
     end)
 
 end
+
+
+
+
+
+
+
+
+
 
 -- Service the ink after x/2 time
 function ServiceInk()
@@ -374,8 +398,19 @@ function jjhud()
             local coords = GetEntityCoords(ped,true)
             local dist = GetDistanceBetweenCoords(coords.x, coords.y, coords.z, 761.12, -3193.95, 6.07, true)
             local distcel = math.ceil(dist)
-            drawTxthud("Distance: " ..distcel, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.075)
-            drawTxthud("Time Left: " ..StashSpawnTimer, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.055)
+
+                if distcel > 99 then
+                drawTxthud("Distance: ~r~" ..distcel, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.075)
+                else
+                drawTxthud("Distance: " ..distcel, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.075)
+                end
+
+
+                if ServiceInkBool then
+                drawTxthud("Time Left: ~r~" ..StashSpawnTimer, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.055)
+                else
+                drawTxthud("Time Left: " ..StashSpawnTimer, 4, locationColorText, 0.5, screenPosX, screenPosY + 0.055) 
+                end
         end
     end)
 end

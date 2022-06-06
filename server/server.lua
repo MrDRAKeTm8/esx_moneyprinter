@@ -1,7 +1,7 @@
 local ESX 				= nil
 local EnougthCops = false
 --local sTimer = Config.StashTimer * 60
-local sTimer = 25
+local sTimer = Config.StashTimer
 local fStart = false
 local StopBool = false
 local StashSpawned = false
@@ -78,20 +78,27 @@ AddEventHandler('esx_moneyprinter:start', function(ZoneOccupied, StashSpawnTimer
 
     local item = xPlayer.getInventoryItem('ink')
 
-    if not item or not item.count then 
-        TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'No Ink, Go get some.', style = { ['background-color'] = '#ffffff', ['color'] = '#000000' } })
-        HaveItem = false;
-     end
-                                            -- and HaveItem
-    if ZoneOccupied == false and EnougthCops then
+    if Config.ItemRequire then
+        if not item or not item.count then 
+            --TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'No Ink, Go get some.', style = { ['background-color'] = '#ffffff', ['color'] = '#000000' } })
+            TriggerClientEvent('esx:showNotification', _source, 'No Ink, Go get some.')
+            HaveItem = false;
+         end
+    end
+
+    if ZoneOccupied == false and EnougthCops and HaveItem then
+        print("test344")
         starterID = sid
         print("starting")
         StopBool = false
         StartStashing(starterID)
         TriggerClientEvent("esx_moneyprinter:playerhud", _source)
+        --TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'Dont Exit The Red Circle Zone.', style = { ['background-color'] = '#ffffff', ['color'] = '#000000' } })
+        TriggerClientEvent('esx:showNotification', _source, 'Dont Exit The Red Circle Zone.')
     else
         print("cant/cops")
-        TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'Cant Start or Not Enougth Cops.', style = { ['background-color'] = '#ffffff', ['color'] = '#000000' } })
+        --TriggerClientEvent('mythic_notify:client:SendAlert', source, { type = 'inform', text = 'Cant Start or Not Enougth Cops.', style = { ['background-color'] = '#ffffff', ['color'] = '#000000' } })
+        TriggerClientEvent('esx:showNotification', _source, 'Cant Start or Not Enougth Cops.')
     end
 end)
 
@@ -104,10 +111,13 @@ end)
 RegisterServerEvent('esx_moneyprinter:stop')
 AddEventHandler('esx_moneyprinter:stop', function()
     print("stopping")
-     sTimer = 25
+     sTimer = Config.StashTimer
      fStart = false
      StopBool = true
      StashSpawned = false
      starterID = 0
      TriggerClientEvent("esx_moneyprinter:reset", -1)
 end)
+
+
+
