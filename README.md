@@ -28,6 +28,10 @@ Configure the resource to your needs inside the config file.
 
 ***Profit!***
 
+## Location:
+
+![Location](https://i.ibb.co/xFtgCG8/Screenshot-34.png)
+
 
 ## Dependencies and Credits:
 [Progress Bars](https://github.com/EthanPeacock/progressBars/releases/tag/1.0)
