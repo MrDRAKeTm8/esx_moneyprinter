@@ -104,32 +104,21 @@ AddEventHandler('esx_moneyprinter:stash', function()
 end)
 
 
-if Config.GangRequire == false then
-    AbleToStart = true
-end
-
 -- job check
-if Config.GangRequire then
-
-    Citizen.CreateThread(function()
-        while true do
-            jobname = ESX.PlayerData.job.name
-            if ESX.PlayerData.job then
-                
-                for _, y in pairs(Config.GangNames) do
-                    if jobname == y then
-                        AbleToStart = true
-                    end
-                end
-
-
-            end
-            Citizen.Wait(30000)
-        end
-
-    end)
-
-end
+Citizen.CreateThread(function()
+	while ESX.GetPlayerData().job == nil do
+		Citizen.Wait(10)
+	end
+        jobname = ESX.PlayerData.job.name
+		
+        if ESX.PlayerData.job and Config.GangRequire then    
+		for _, y in pairs(Config.GangNames) do
+			if jobname == y then
+			    AbleToStart = true
+			end
+		end
+	end
+end)
 
 -- job check if false
 if Config.GangRequire == false then
