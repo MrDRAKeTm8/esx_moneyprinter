@@ -26,6 +26,8 @@ Add Resource to cfg file.
 
 Configure the resource to your needs inside the config file.
 
+If wanted add 'ink' item to the database.
+
 ***Profit!***
 
 ## Location:
